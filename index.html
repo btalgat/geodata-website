@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GeoData Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky bar → split hero (text + live structural map) → modules grid → reserves ledger → services → audiences → cases → contact. Cool "core-shed" greys, teal ink, ochre for isolines and data highlights. */
+:root{
+  --bg:#F2F5F4; --surface:#FFFFFF; --sunk:#E7ECEA;
+  --ink:#11262A; --muted:#566A6C; --line:#D3DCD9;
+  --accent:#0E5E62; --accent-ink:#FFFFFF; --ochre:#B7861A; --ochre-soft:#F1E3BE;
+  --map-bg:#F8FAF9; --iso:#9DB1AE; --iso-major:#0E5E62;
+  --f-display:"Unbounded", "Arial Black", system-ui, sans-serif;
+  --f-body:"Onest", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --wrap:1180px; --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1618; --surface:#122125; --sunk:#0F1C1F;
+  --ink:#E2EBE9; --muted:#8EA2A2; --line:#22373B;
+  --accent:#54B6AC; --accent-ink:#06201F; --ochre:#E2B54C; --ochre-soft:#3A3115;
+  --map-bg:#0F1D20; --iso:#2E4A4E; --iso-major:#54B6AC; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1618; --surface:#122125; --sunk:#0F1C1F;
+  --ink:#E2EBE9; --muted:#8EA2A2; --line:#22373B;
+  --accent:#54B6AC; --accent-ink:#06201F; --ochre:#E2B54C; --ochre-soft:#3A3115;
+  --map-bg:#0F1D20; --iso:#2E4A4E; --iso-major:#54B6AC; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);padding-inline:20px;padding-block:0}
+.wrap{max-width:var(--wrap);margin-inline:auto}
+a{color:inherit}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;line-height:1.15;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(1.6rem,3.2vw,2.4rem)}
+h3{font-size:1.05rem;font-weight:500}
+p{margin:0}
+.eyebrow{font:500 .75rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ochre)}
+.lead{color:var(--muted);font-size:1.08rem;max-width:62ch}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:3px;border-radius:4px}
+
+/* header */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-inline:-20px;padding-inline:20px}
+.bar .wrap{display:flex;align-items:center;gap:24px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 .95rem/1 var(--f-display)}
+.logo svg{flex:none}
+.logo small{display:block;font:400 .68rem/1.2 var(--f-mono);color:var(--muted);letter-spacing:.06em;margin-top:3px}
+nav.main{display:flex;gap:22px;margin-left:auto}
+nav.main a{text-decoration:none;color:var(--muted);font-size:.93rem}
+nav.main a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:500 .92rem/1 var(--f-body);padding:12px 18px;border-radius:999px;text-decoration:none;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.menu-btn{display:none;margin-left:auto;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:500 .85rem var(--f-body)}
+@media (max-width:900px){
+  nav.main{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;gap:0;background:var(--surface);border-bottom:1px solid var(--line);padding:8px 20px}
+  nav.main.open{display:flex}
+  nav.main a{padding:12px 0;border-bottom:1px solid var(--line)}
+  .bar .btn{display:none}
+  .menu-btn{display:block}
+}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.02fr 1fr;gap:48px;align-items:center;padding-block:64px 72px}
+.hero > *{min-width:0}
+.hero h1{font-size:clamp(2rem,4.6vw,3.5rem);margin-block:18px 22px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.hero .facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:36px;padding-top:20px;border-top:1px solid var(--line);font:.8rem/1.4 var(--f-mono);color:var(--muted)}
+.map{position:relative;background:var(--map-bg);border:1px solid var(--line);border-radius:var(--r);aspect-ratio:1/1;max-width:100%;overflow:hidden}
+.map canvas{position:absolute;inset:0;width:100%;height:100%}
+.map .legend{position:absolute;left:14px;bottom:14px;right:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:.7rem/1.35 var(--f-mono);color:var(--muted)}
+.map .legend b{color:var(--ink);font-weight:500}
+.map .scale{display:flex;align-items:center;gap:6px}
+.map .scale i{display:block;width:60px;height:6px;border:1px solid var(--muted);border-top:0}
+.well-card{position:absolute;top:14px;right:14px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:.72rem/1.55 var(--f-mono);min-width:180px;box-shadow:0 6px 24px -12px rgba(0,0,0,.35)}
+.well-card .t{display:flex;justify-content:space-between;color:var(--ochre);font-weight:500;margin-bottom:4px}
+.well-card dl{display:grid;grid-template-columns:auto auto;gap:0 14px;margin:0}
+.well-card dt{color:var(--muted)} .well-card dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:900px){.hero{grid-template-columns:1fr;padding-block:40px 56px;gap:36px}}
+
+/* sections */
+section.block{padding-block:88px;border-top:1px solid var(--line)}
+.head{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:end;margin-bottom:48px}
+.head > *{min-width:0}
+.head h2{margin-top:14px}
+@media (max-width:800px){.head{grid-template-columns:1fr;gap:16px}section.block{padding-block:64px}}
+
+/* problem */
+.pains{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.pains div{background:var(--surface);padding:28px}
+.pains h3{margin-bottom:10px}
+.pains p{color:var(--muted);font-size:.95rem}
+@media (max-width:800px){.pains{grid-template-columns:1fr}}
+
+/* modules */
+.mods{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.mod .ic{width:40px;height:40px;border-radius:8px;background:var(--sunk);display:grid;place-items:center;color:var(--accent)}
+.mod p{color:var(--muted);font-size:.95rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+.tags span{font:.7rem/1 var(--f-mono);padding:6px 8px;border-radius:5px;background:var(--sunk);color:var(--muted)}
+@media (max-width:980px){.mods{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.mods{grid-template-columns:1fr}}
+
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:s}
+.flow li{list-style:none;padding:0 24px 0 0;position:relative}
+.flow li::before{counter-increment:s;content:"0" counter(s);display:block;font:500 .78rem var(--f-mono);color:var(--ochre);padding-bottom:14px;margin-bottom:16px;border-bottom:2px solid var(--line)}
+.flow li:first-child::before{border-color:var(--accent)}
+.flow h3{margin-bottom:8px}
+.flow p{color:var(--muted);font-size:.93rem}
+.flow{padding:0;margin:0}
+@media (max-width:800px){.flow{grid-template-columns:1fr 1fr;gap:32px 0}}
+@media (max-width:480px){.flow{grid-template-columns:1fr}}
+
+/* reserves */
+.ledger{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+.ledger > *{min-width:0}
+.ledger ul{margin:24px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.ledger li{display:flex;gap:12px;color:var(--muted)}
+.ledger li::before{content:"";flex:none;width:8px;height:8px;margin-top:9px;border-radius:50%;background:var(--ochre)}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.sheet-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid var(--line);font:.75rem/1.4 var(--f-mono);color:var(--muted)}
+.sheet-top b{color:var(--ink);font-weight:500}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font:.8rem/1.4 var(--f-mono);font-variant-numeric:tabular-nums;min-width:520px}
+th,td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-weight:400;background:var(--sunk)}
+tbody tr:last-child td{border-bottom:0;font-weight:500;background:var(--ochre-soft)}
+td.neg{color:#B4472E} td.pos{color:var(--accent)}
+:root[data-theme="dark"] td.neg{color:#E58A72}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) td.neg{color:#E58A72}}
+.sheet-note{padding:10px 18px;font:.7rem/1.4 var(--f-mono);color:var(--muted);border-top:1px solid var(--line)}
+@media (max-width:900px){.ledger{grid-template-columns:1fr}}
+
+/* services */
+.svc{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--line)}
+.svc article{display:grid;grid-template-columns:56px 1fr;gap:16px;padding:28px 28px 28px 0;border-bottom:1px solid var(--line)}
+.svc article:nth-child(odd){border-right:1px solid var(--line)}
+.svc article:nth-child(even){padding-left:28px}
+.svc .k{font:500 .75rem var(--f-mono);color:var(--ochre);padding-top:4px}
+.svc h3{margin-bottom:8px}
+.svc p{color:var(--muted);font-size:.95rem}
+@media (max-width:800px){.svc{grid-template-columns:1fr}.svc article:nth-child(odd){border-right:0}.svc article:nth-child(even){padding-left:0}}
+
+/* audiences */
+.aud{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.aud div{padding:26px;border-radius:var(--r);background:var(--sunk)}
+.aud h3{margin-bottom:12px}
+.aud ul{margin:0;padding-left:18px;color:var(--muted);font-size:.94rem;display:grid;gap:6px}
+@media (max-width:800px){.aud{grid-template-columns:1fr}}
+
+/* cases */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.case{border:1px solid var(--line);border-radius:var(--r);padding:26px;background:var(--surface);display:flex;flex-direction:column;gap:14px}
+.case .row{font:.72rem/1.4 var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.case p{color:var(--muted);font-size:.94rem}
+.case .res{margin-top:auto;padding-top:14px;border-top:1px dashed var(--line);font-size:.94rem;color:var(--ink)}
+@media (max-width:900px){.cases{grid-template-columns:1fr}}
+
+/* about */
+.about{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.about > *{min-width:0}
+.about p+p{margin-top:16px}
+.principles{display:grid;gap:0;border-top:1px solid var(--line)}
+.principles div{display:flex;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}
+.principles span{color:var(--muted);text-align:right;font-size:.94rem}
+@media (max-width:800px){.about{grid-template-columns:1fr}}
+
+/* contact */
+.contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:44px}
+.contact > *{min-width:0}
+.contact dl{margin:28px 0 0;display:grid;gap:14px}
+.contact dt{font:.7rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.contact dd{margin:2px 0 0}
+form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form .full{grid-column:1/-1}
+label{display:grid;gap:6px;font-size:.82rem;color:var(--muted)}
+input,select,textarea{font:inherit;font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;width:100%}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.ok{grid-column:1/-1;padding:14px;border-radius:8px;background:var(--ochre-soft);font-size:.92rem}
+@media (max-width:860px){.contact{grid-template-columns:1fr;padding:28px 20px}form{grid-template-columns:1fr}}
+
+footer{padding-block:48px 40px;color:var(--muted);font-size:.88rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px}
+footer nav{display:flex;flex-wrap:wrap;gap:18px}
+footer a{text-decoration:none} footer a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="GeoData Solutions — на главную">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="7" fill="none" stroke="var(--accent)" stroke-width="2"/><path d="M6 20c4-6 8-6 12-2s5 2 6-2" fill="none" stroke="var(--ochre)" stroke-width="2"/><path d="M6 13c4-5 9-5 12-2s5 1 6-1" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+      <span>GeoData Solutions<small>KENARA PLATFORM</small></span>
+    </a>
+    <nav class="main" id="nav">
+      <a href="#kenara">Kenara</a>
+      <a href="#reserves">Запасы</a>
+      <a href="#services">Услуги</a>
+      <a href="#solutions">Решения</a>
+      <a href="#cases">Кейсы</a>
+      <a href="#about">О компании</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+    <a class="btn" href="#contact">Запросить демо</a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Меню</button>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+
+  <section class="hero">
+    <div>
+      <span class="eyebrow">Kenara · платформа геоданных</span>
+      <h1>Скважины, карты и запасы месторождения <em>в одной базе</em></h1>
+      <p class="lead">Kenara хранит геолого-геофизические данные, показывает их на карте и считает движение запасов по государственной форме. Геологи работают с одной актуальной версией данных вместо папок и таблиц.</p>
+      <div class="cta">
+        <a class="btn" href="#contact">Запросить демо</a>
+        <a class="btn ghost" href="#kenara">Возможности платформы</a>
+      </div>
+      <div class="facts">
+        <span>LAS · DLIS · SEG-Y</span><span>Shape · GeoTIFF · GeoJSON</span><span>WebGL-визуализация</span>
+      </div>
+    </div>
+    <div class="map" aria-label="Пример структурной карты в Kenara">
+      <canvas id="map"></canvas>
+      <div class="well-card">
+        <div class="t"><span>Скв. 112</span><span>добывающая</span></div>
+        <dl>
+          <dt>Альтитуда</dt><dd>128.4 м</dd>
+          <dt>Кровля Ю-I</dt><dd>−2 341.6 м</dd>
+          <dt>Нэф</dt><dd>8.2 м</dd>
+          <dt>Кп / Кн</dt><dd>0.18 / 0.64</dd>
+        </dl>
+      </div>
+      <div class="legend">
+        <span><b>Структурная карта по кровле Ю-I</b><br>изогипсы через 5 м · пример</span>
+        <span class="scale"><i></i>500 м</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="head">
+      <div><span class="eyebrow">Задача</span><h2>Где сегодня живут геоданные</h2></div>
+      <p class="lead">В большинстве компаний данные по одному месторождению лежат в десятке мест. Чтобы собрать отчёт, их приходится сводить вручную.</p>
+    </div>
+    <div class="pains">
+      <div><h3>Разрозненные источники</h3><p>Каротажи на сетевом диске, опробования в Excel, карты в разных проектах. Трудно понять, какая версия последняя.</p></div>
+      <div><h3>Ручная отчётность</h3><p>Движение запасов собирается из таблиц перед каждой сдачей. Ошибки в одной ячейке переходят в госотчёт.</p></div>
+      <div><h3>Знания уходят с людьми</h3><p>Логика обработки и интерпретации хранится у конкретных специалистов, а не в системе.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="kenara">
+    <div class="head">
+      <div><span class="eyebrow">Платформа Kenara</span><h2>Шесть модулей на общей базе данных</h2></div>
+      <p class="lead">Модули используют одни и те же скважины, пласты и границы. Изменение в одном месте сразу видно на карте, в аналитике и в отчёте по запасам.</p>
+    </div>
+    <div class="mods">
+      <article class="mod">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M8 6h8M9 11h6M10 16h4"/></svg></div>
+        <h3>Скважинные данные</h3>
+        <p>Координаты устьев, инклинометрия, каротажи, опробования, РИГИС, керн и результаты испытаний. Все данные привязаны к стволу скважины.</p>
+        <div class="tags"><span>LAS</span><span>инклинометрия</span><span>РИГИС</span><span>керн</span></div>
+      </article>
+      <article class="mod">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div>
+        <h3>Картографические данные</h3>
+        <p>Векторные и растровые слои любых форматов. Структурные карты, карты запасов, эффективных толщин и продуктивности в браузере на WebGL.</p>
+        <div class="tags"><span>Shape</span><span>GeoTIFF</span><span>GRD</span><span>WebGL</span></div>
+      </article>
+      <article class="mod">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="7" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="12" cy="17" r="2"/><path d="M7.5 8.5l3.5 7M15.8 7.6l-3 7.6M8 7h7"/></svg></div>
+        <h3>Пространственная аналитика</h3>
+        <p>Интерполяция и построение сеток, расчёт по площади и контурам, анализ распределения параметров между скважинами.</p>
+        <div class="tags"><span>кригинг</span><span>IDW</span><span>гриды</span><span>контуры</span></div>
+      </article>
+      <article class="mod">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8h18M3 13h18M3 18h18"/><path d="M8 8v10M15 13v5"/></svg></div>
+        <h3>Месторождения и структуры</h3>
+        <p>Свои месторождения, лицензионные участки, блоки и горизонты. Данные агрегируются на любом уровне иерархии.</p>
+        <div class="tags"><span>блоки</span><span>горизонты</span><span>пласты</span><span>участки</span></div>
+      </article>
+      <article class="mod">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+        <h3>Движение запасов</h3>
+        <p>Расчёт баланса по категориям и формирование отчёта по государственной форме. Каждое изменение запасов связано с основанием.</p>
+        <div class="tags"><span>A+B+C₁</span><span>C₂</span><span>госформа</span><span>аудит</span></div>
+      </article>
+      <article class="mod">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div>
+        <h3>Доступ и интеграции</h3>
+        <p>Роли и права на уровне месторождения, журнал изменений, API для обмена с другим ПО. Развёртывание в облаке или на серверах заказчика.</p>
+        <div class="tags"><span>REST API</span><span>роли</span><span>on-premise</span></div>
+      </article>
+    </div>
+
+    <ol class="flow" style="margin-top:72px">
+      <li><h3>Загрузка</h3><p>Импорт архивов и текущих данных с проверкой форматов и привязок.</p></li>
+      <li><h3>Структурирование</h3><p>Данные раскладываются по месторождениям, скважинам, пластам и блокам.</p></li>
+      <li><h3>Анализ</h3><p>Карты, сетки и пространственные расчёты на актуальных данных.</p></li>
+      <li><h3>Отчётность</h3><p>Баланс запасов и выгрузки для госорганов и руководства.</p></li>
+    </ol>
+  </section>
+
+  <section class="block" id="reserves">
+    <div class="ledger">
+      <div>
+        <span class="eyebrow">Учёт запасов</span>
+        <h2 style="margin-top:14px">Движение запасов без ручных сводок</h2>
+        <p class="lead" style="margin-top:18px">Kenara считает баланс запасов от начала года к концу года по каждому объекту подсчёта и собирает отчёт в формате государственной формы.</p>
+        <ul>
+          <li>Добыча, прирост, переоценка и списание по категориям</li>
+          <li>Разрез по месторождению, блоку и горизонту</li>
+          <li>История изменений с обоснованием каждой операции</li>
+          <li>Выгрузка готового отчёта в Excel и PDF</li>
+        </ul>
+      </div>
+      <div class="sheet">
+        <div class="sheet-top"><span><b>Месторождение «Северное»</b> · горизонт Ю-I</span><span>нефть, тыс. т · пример</span></div>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Показатель</th><th>A+B+C₁</th><th>C₂</th><th>Итого</th></tr></thead>
+            <tbody>
+              <tr><td>На 01.01.2026</td><td>14 820</td><td>3 410</td><td>18 230</td></tr>
+              <tr><td>Добыча</td><td class="neg">−612</td><td>—</td><td class="neg">−612</td></tr>
+              <tr><td>Разведка (прирост)</td><td class="pos">+455</td><td class="pos">+180</td><td class="pos">+635</td></tr>
+              <tr><td>Переоценка</td><td class="pos">+120</td><td class="neg">−120</td><td>0</td></tr>
+              <tr><td>Списание</td><td class="neg">−38</td><td>—</td><td class="neg">−38</td></tr>
+              <tr><td>На 01.01.2027</td><td>14 745</td><td>3 470</td><td>18 215</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sheet-note">Цифры условные и показывают структуру отчёта.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="services">
+    <div class="head">
+      <div><span class="eyebrow">Услуги</span><h2>Консалтинг и цифровизация</h2></div>
+      <p class="lead">Помогаем навести порядок в данных до внедрения системы и сопровождаем команду после запуска.</p>
+    </div>
+    <div class="svc">
+      <article><span class="k">01</span><div><h3>Аудит данных и процессов</h3><p>Описываем, какие данные есть, где они хранятся и как движутся между отделами. Находим пробелы и дубли.</p></div></article>
+      <article><span class="k">02</span><div><h3>Стратегия цифровизации</h3><p>Целевая архитектура данных и дорожная карта с приоритетами и сроками.</p></div></article>
+      <article><span class="k">03</span><div><h3>Миграция и оцифровка архивов</h3><p>Перенос исторических данных, оцифровка бумажных каротажей и карт, контроль качества.</p></div></article>
+      <article><span class="k">04</span><div><h3>Внедрение Kenara и обучение</h3><p>Настройка под структуру компании, интеграция с текущим ПО, обучение геологов и администраторов.</p></div></article>
+      <article><span class="k">05</span><div><h3>Сопровождение</h3><p>Техническая поддержка, обновления и консультации по работе с данными.</p></div></article>
+      <article><span class="k">06</span><div><h3>Методическая поддержка</h3><p>Помощь в подготовке материалов по подсчёту и учёту запасов.</p></div></article>
+    </div>
+  </section>
+
+  <section class="block" id="solutions">
+    <div class="head">
+      <div><span class="eyebrow">Решения</span><h2>Для кого Kenara</h2></div>
+      <p class="lead">Платформа настраивается под задачи организации: от одного лицензионного участка до портфеля месторождений.</p>
+    </div>
+    <div class="aud">
+      <div><h3>Недропользователи</h3><ul><li>Единая база по всем активам</li><li>Отчётность по запасам в срок</li><li>Прозрачность для руководства</li></ul></div>
+      <div><h3>Проектные и научные институты</h3><ul><li>Работа с данными заказчиков</li><li>Подсчёт запасов и картопостроение</li><li>Совместные проекты</li></ul></div>
+      <div><h3>Государственные органы</h3><ul><li>Сбор и проверка отчётности</li><li>Сводные данные по регионам</li><li>Контроль движения запасов</li></ul></div>
+    </div>
+  </section>
+
+  <section class="block" id="cases">
+    <div class="head">
+      <div><span class="eyebrow">Кейсы</span><h2>Типовые проекты</h2></div>
+      <p class="lead">Здесь будут опубликованы проекты с разрешения заказчиков. Ниже описаны типичные задачи, с которыми к нам приходят.</p>
+    </div>
+    <div class="cases">
+      <article class="case"><span class="row">Недропользователь · архив</span><h3>Единая база вместо файловых архивов</h3><p>Каротажи, опробования и карты по нескольким месторождениям переносятся в Kenara с проверкой привязок.</p><p class="res">Итог: одна версия данных для всех служб.</p></article>
+      <article class="case"><span class="row">Отчётность · запасы</span><h3>Автоматизация отчёта по запасам</h3><p>Баланс запасов по блокам и горизонтам считается в системе, а не сводится из таблиц.</p><p class="res">Итог: отчёт формируется из системы и проверяется по журналу изменений.</p></article>
+      <article class="case"><span class="row">Консалтинг · стратегия</span><h3>Дорожная карта цифровизации</h3><p>Аудит данных геологической службы и план перехода к единой платформе.</p><p class="res">Итог: согласованный план работ с приоритетами.</p></article>
+    </div>
+  </section>
+
+  <section class="block" id="about">
+    <div class="about">
+      <div>
+        <span class="eyebrow">О компании</span>
+        <h2 style="margin-top:14px">GeoData Solutions</h2>
+        <p class="lead" style="margin-top:18px">Мы разрабатываем программное обеспечение для геологических данных и помогаем компаниям недропользования переходить к цифровым процессам.</p>
+        <p style="margin-top:16px;color:var(--muted)">В команде геологи, геофизики и разработчики, поэтому Kenara построена вокруг реальных рабочих процессов геологической службы.</p>
+      </div>
+      <div class="principles">
+        <div><b>Данные</b><span>одна версия, понятное происхождение</span></div>
+        <div><b>Методики</b><span>соответствие требованиям к отчётности</span></div>
+        <div><b>Развёртывание</b><span>облако или серверы заказчика</span></div>
+        <div><b>Поддержка</b><span>на русском языке, в вашем часовом поясе</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="contact" style="border-top:0;padding-top:24px">
+    <div class="contact">
+      <div>
+        <span class="eyebrow">Контакты</span>
+        <h2 style="margin-top:14px">Покажем Kenara на ваших данных</h2>
+        <p class="lead" style="margin-top:16px">Оставьте заявку, и мы договоримся о демонстрации платформы или консультации.</p>
+        <dl>
+          <div><dt>Город</dt><dd>Астана</dd></div>
+          <div><dt>Email</dt><dd class="mono">info@geodatasolutions.kz</dd></div>
+          <div><dt>Телефон</dt><dd class="mono">+7 (___) ___-__-__</dd></div>
+        </dl>
+      </div>
+      <form id="lead" novalidate>
+        <label>Имя<input id="f-name" name="name" required autocomplete="name"></label>
+        <label>Компания<input id="f-org" name="org" autocomplete="organization"></label>
+        <label>Email<input id="f-mail" name="email" type="email" required autocomplete="email"></label>
+        <label>Телефон<input id="f-tel" name="tel" type="tel" autocomplete="tel"></label>
+        <label class="full">Интересует
+          <select id="f-topic" name="topic">
+            <option>Демонстрация Kenara</option>
+            <option>Учёт движения запасов</option>
+            <option>Консалтинг и цифровизация</option>
+            <option>Миграция данных</option>
+          </select>
+        </label>
+        <label class="full">Комментарий<textarea id="f-msg" name="msg" placeholder="Например: 3 месторождения, около 800 скважин, нужна отчётность по запасам"></textarea></label>
+        <div class="full"><button class="btn" type="submit">Отправить заявку</button></div>
+        <p class="ok" id="ok" hidden></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 GeoData Solutions</span>
+    <nav><a href="#kenara">Kenara</a><a href="#services">Услуги</a><a href="#cases">Кейсы</a><a href="#about">О компании</a><a href="#contact">Контакты</a><a href="#top">Политика конфиденциальности</a></nav>
+  </div>
+</footer>
+
+<script>
+// mobile menu
+const nav=document.getElementById('nav'),mb=document.getElementById('menuBtn');
+mb.addEventListener('click',()=>{const o=nav.classList.toggle('open');mb.setAttribute('aria-expanded',o)});
+nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');mb.setAttribute('aria-expanded',false)}));
+
+// form (no backend yet)
+document.getElementById('lead').addEventListener('submit',e=>{
+  e.preventDefault();
+  const ok=document.getElementById('ok'),n=document.getElementById('f-name').value.trim(),m=document.getElementById('f-mail').value.trim();
+  ok.hidden=false;
+  ok.textContent=(!n||!/^\S+@\S+\.\S+$/.test(m))?'Укажите имя и корректный email.':'Заявка заполнена. Отправка заработает после подключения сайта к почте или CRM.';
+});
+
+// structural map: contour lines of a synthetic anticline via marching squares
+(function(){
+  const cv=document.getElementById('map'),ctx=cv.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wells=[[.38,.42],[.52,.36],[.46,.55],[.6,.5],[.3,.6],[.68,.32],[.56,.66],[.36,.3],[.72,.62],[.24,.45]];
+  function field(x,y,t){
+    const a=Math.exp(-((x-.48)**2/.05+(y-.48)**2/.03));
+    const b=.55*Math.exp(-((x-.72+.02*Math.sin(t))**2/.02+(y-.3)**2/.025));
+    const c=.35*Math.exp(-((x-.25)**2/.02+(y-.72+.02*Math.cos(t))**2/.03));
+    return a+b+c+.08*Math.sin(6*x+t*.6)*Math.cos(5*y);
+  }
+  function col(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  let W,H,dpr;
+  function size(){dpr=Math.min(2,devicePixelRatio||1);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+  function draw(t){
+    const iso=col('--iso'),maj=col('--iso-major'),och=col('--ochre'),ink=col('--ink');
+    ctx.clearRect(0,0,W,H);
+    const N=90,g=[];
+    for(let j=0;j<=N;j++){g[j]=[];for(let i=0;i<=N;i++)g[j][i]=field(i/N,j/N,t)}
+    const sx=W/N,sy=H/N;
+    for(let k=1;k<=22;k++){
+      const lv=k*.05;ctx.beginPath();
+      for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+        const v=[g[j][i],g[j][i+1],g[j+1][i+1],g[j+1][i]];
+        const p=[];const e=[[0,1,i,j,i+1,j],[1,2,i+1,j,i+1,j+1],[2,3,i+1,j+1,i,j+1],[3,0,i,j+1,i,j]];
+        for(const [a,b,x1,y1,x2,y2] of e){
+          if((v[a]<lv)!==(v[b]<lv)){const f=(lv-v[a])/(v[b]-v[a]);p.push([(x1+(x2-x1)*f)*sx,(y1+(y2-y1)*f)*sy])}
+        }
+        for(let q=0;q+1<p.length;q+=2){ctx.moveTo(p[q][0],p[q][1]);ctx.lineTo(p[q+1][0],p[q+1][1])}
+      }
+      const major=k%4===0;ctx.strokeStyle=major?maj:iso;ctx.lineWidth=major?1.4:.8;ctx.globalAlpha=major?.9:.8;ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    // oil-water contact outline (ochre, dashed)
+    ctx.beginPath();ctx.setLineDash([5,4]);
+    const lv=.62;
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+      const v=[g[j][i],g[j][i+1],g[j+1][i+1],g[j+1][i]];const p=[];
+      const e=[[0,1,i,j,i+1,j],[1,2,i+1,j,i+1,j+1],[2,3,i+1,j+1,i,j+1],[3,0,i,j+1,i,j]];
+      for(const [a,b,x1,y1,x2,y2] of e){if((v[a]<lv)!==(v[b]<lv)){const f=(lv-v[a])/(v[b]-v[a]);p.push([(x1+(x2-x1)*f)*sx,(y1+(y2-y1)*f)*sy])}}
+      for(let q=0;q+1<p.length;q+=2){ctx.moveTo(p[q][0],p[q][1]);ctx.lineTo(p[q+1][0],p[q+1][1])}
+    }
+    ctx.strokeStyle=och;ctx.lineWidth=1.6;ctx.stroke();ctx.setLineDash([]);
+    // wells
+    ctx.font='10px "JetBrains Mono", monospace';
+    wells.forEach(([x,y],n)=>{
+      const px=x*W,py=y*H,hi=n===2;
+      ctx.beginPath();ctx.arc(px,py,hi?5:3.5,0,7);ctx.fillStyle=hi?och:ink;ctx.fill();
+      if(hi){ctx.beginPath();ctx.arc(px,py,10+3*Math.sin(t*2),0,7);ctx.strokeStyle=och;ctx.lineWidth=1;ctx.stroke()}
+      ctx.fillStyle=ink;ctx.fillText(hi?'112':String(100+n*3),px+7,py-6);
+    });
+  }
+  let t=0,last=0;
+  function loop(ts){if(ts-last>60){t+=.02;draw(t);last=ts}requestAnimationFrame(loop)}
+  size();draw(0);
+  addEventListener('resize',()=>{size();draw(t)});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw(t));
+  new MutationObserver(()=>draw(t)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(!reduce)requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
