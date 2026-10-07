@@ -58,8 +58,14 @@ nav.main a:hover{color:var(--ink)}
 .btn:hover{transform:translateY(-1px)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn.ghost:hover{border-color:var(--ink)}
-.menu-btn{display:none;margin-left:auto;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:500 .85rem var(--f-body)}
-@media (max-width:900px){
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;flex:none}
+.lang button{font:500 .72rem/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);background:none;border:0;border-radius:999px;padding:7px 9px;cursor:pointer}
+.lang button:hover{color:var(--ink)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+@media (max-width:1120px){.lang{margin-left:auto}.bar .wrap{gap:10px}}
+@media (max-width:480px){.logo small{display:none}}
+.menu-btn{display:none;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:500 .85rem var(--f-body)}
+@media (max-width:1120px){
   nav.main{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;gap:0;background:var(--surface);border-bottom:1px solid var(--line);padding:8px 20px}
   nav.main.open{display:flex}
   nav.main a{padding:12px 0;border-bottom:1px solid var(--line)}
@@ -214,6 +220,11 @@ footer a{text-decoration:none} footer a:hover{color:var(--ink)}
       <a href="#about">О компании</a>
       <a href="#contact">Контакты</a>
     </nav>
+    <div class="lang" role="group" aria-label="Язык / Тіл / Language">
+      <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-lang="kk" aria-pressed="false">KZ</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
     <a class="btn" href="#contact">Запросить демо</a>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Меню</button>
   </div>
@@ -456,7 +467,8 @@ document.getElementById('lead').addEventListener('submit',e=>{
   e.preventDefault();
   const ok=document.getElementById('ok'),n=document.getElementById('f-name').value.trim(),m=document.getElementById('f-mail').value.trim();
   ok.hidden=false;
-  ok.textContent=(!n||!/^\S+@\S+\.\S+$/.test(m))?'Укажите имя и корректный email.':'Заявка заполнена. Отправка заработает после подключения сайта к почте или CRM.';
+  ok.dataset.msg=(!n||!/^\S+@\S+\.\S+$/.test(m))?'Укажите имя и корректный email.':'Заявка заполнена. Отправка заработает после подключения сайта к почте или CRM.';
+  ok.textContent=window.T?T(ok.dataset.msg):ok.dataset.msg;
 });
 
 // structural map: contour lines of a synthetic anticline via marching squares
@@ -518,6 +530,205 @@ document.getElementById('lead').addEventListener('submit',e=>{
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw(t));
   new MutationObserver(()=>draw(t)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   if(!reduce)requestAnimationFrame(loop);
+})();
+
+// ---- languages: RU (source) / KZ / EN ----
+const I18N={
+"GeoData Solutions":["GeoData Solutions","GeoData Solutions"],
+"Kenara":["Kenara","Kenara"],
+"Запасы":["Қорлар","Reserves"],
+"Услуги":["Қызметтер","Services"],
+"Решения":["Шешімдер","Solutions"],
+"Кейсы":["Кейстер","Cases"],
+"О компании":["Компания туралы","About"],
+"Контакты":["Байланыс","Contacts"],
+"Запросить демо":["Демо сұрау","Request a demo"],
+"Меню":["Мәзір","Menu"],
+"Kenara · платформа геоданных":["Kenara · геодеректер платформасы","Kenara · geodata platform"],
+"Скважины, карты и запасы месторождения":["Кен орнының ұңғымалары, карталары мен қорлары","Wells, maps and field reserves"],
+"в одной базе":["бір базада","in one database"],
+"Kenara хранит геолого-геофизические данные, показывает их на карте и считает движение запасов по государственной форме. Геологи работают с одной актуальной версией данных вместо папок и таблиц.":["Kenara геологиялық-геофизикалық деректерді сақтайды, оларды картада көрсетеді және қорлар қозғалысын мемлекеттік нысан бойынша есептейді. Геологтар папкалар мен кестелердің орнына деректердің бір өзекті нұсқасымен жұмыс істейді.","Kenara stores geological and geophysical data, shows it on the map and calculates reserves movement in the official state reporting form. Geologists work with one up-to-date version of the data instead of folders and spreadsheets."],
+"Возможности платформы":["Платформа мүмкіндіктері","Platform features"],
+"WebGL-визуализация":["WebGL-визуализация","WebGL visualization"],
+"Скв. 112":["Ұңғ. 112","Well 112"],
+"добывающая":["өндіруші","producer"],
+"Альтитуда":["Альтитуда","Elevation"],
+"128.4 м":["128.4 м","128.4 m"],
+"Кровля Ю-I":["Ю-I жабыны","Top Yu-I"],
+"−2 341.6 м":["−2 341.6 м","−2 341.6 m"],
+"Нэф":["Hтиім","Net pay"],
+"8.2 м":["8.2 м","8.2 m"],
+"Кп / Кн":["Кп / Км","φ / So"],
+"Структурная карта по кровле Ю-I":["Ю-I жабыны бойынша құрылымдық карта","Structure map, top of Yu-I"],
+"изогипсы через 5 м · пример":["изогипстер 5 м сайын · мысал","contour interval 5 m · example"],
+"500 м":["500 м","500 m"],
+"Задача":["Мәселе","The problem"],
+"Где сегодня живут геоданные":["Геодеректер бүгін қайда сақталады","Where geodata lives today"],
+"В большинстве компаний данные по одному месторождению лежат в десятке мест. Чтобы собрать отчёт, их приходится сводить вручную.":["Көптеген компанияларда бір кен орнының деректері ондаған жерде жатады. Есеп жинау үшін оларды қолмен біріктіруге тура келеді.","In most companies, data for a single field sits in a dozen places. To build a report, it has to be pulled together by hand."],
+"Разрозненные источники":["Шашыраңқы дереккөздер","Scattered sources"],
+"Каротажи на сетевом диске, опробования в Excel, карты в разных проектах. Трудно понять, какая версия последняя.":["Каротаждар желілік дискіде, сынамалар Excel-де, карталар әртүрлі жобаларда. Қай нұсқаның соңғы екенін түсіну қиын.","Well logs on a network drive, sampling in Excel, maps in different projects. It is hard to tell which version is the latest."],
+"Ручная отчётность":["Қолмен жасалатын есептілік","Manual reporting"],
+"Движение запасов собирается из таблиц перед каждой сдачей. Ошибки в одной ячейке переходят в госотчёт.":["Қорлар қозғалысы әр тапсыру алдында кестелерден жиналады. Бір ұяшықтағы қате мемлекеттік есепке өтеді.","Reserves movement is compiled from spreadsheets before every submission. An error in one cell ends up in the state report."],
+"Знания уходят с людьми":["Білім адамдармен бірге кетеді","Knowledge leaves with people"],
+"Логика обработки и интерпретации хранится у конкретных специалистов, а не в системе.":["Өңдеу мен интерпретация логикасы жүйеде емес, нақты мамандарда сақталады.","Processing and interpretation logic lives with individual specialists, not in a system."],
+"Платформа Kenara":["Kenara платформасы","Kenara platform"],
+"Шесть модулей на общей базе данных":["Ортақ дерекқордағы алты модуль","Six modules on one shared database"],
+"Модули используют одни и те же скважины, пласты и границы. Изменение в одном месте сразу видно на карте, в аналитике и в отчёте по запасам.":["Модульдер бірдей ұңғымаларды, қабаттарды және шекараларды пайдаланады. Бір жердегі өзгеріс картада, талдауда және қорлар есебінде бірден көрінеді.","All modules use the same wells, reservoirs and boundaries. A change in one place shows up at once on the map, in analytics and in the reserves report."],
+"Скважинные данные":["Ұңғыма деректері","Well data"],
+"Координаты устьев, инклинометрия, каротажи, опробования, РИГИС, керн и результаты испытаний. Все данные привязаны к стволу скважины.":["Сағаның координаттары, инклинометрия, каротаждар, сынамалар, ГЗН интерпретациясы, керн және сынақ нәтижелері. Барлық деректер ұңғыма оқпанына байланған.","Wellhead coordinates, deviation surveys, well logs, sampling, log interpretation results, core and test results. All data is tied to the wellbore."],
+"инклинометрия":["инклинометрия","deviation survey"],
+"РИГИС":["ГЗН нәтижелері","log interpretation"],
+"керн":["керн","core"],
+"Картографические данные":["Картографиялық деректер","Map data"],
+"Векторные и растровые слои любых форматов. Структурные карты, карты запасов, эффективных толщин и продуктивности в браузере на WebGL.":["Кез келген форматтағы векторлық және растрлық қабаттар. Құрылымдық карталар, қорлар, тиімді қалыңдықтар және өнімділік карталары браузерде WebGL арқылы.","Vector and raster layers in any format. Structure maps, reserves, net pay and productivity maps in the browser with WebGL."],
+"Пространственная аналитика":["Кеңістіктік талдау","Spatial analytics"],
+"Интерполяция и построение сеток, расчёт по площади и контурам, анализ распределения параметров между скважинами.":["Интерполяция және торларды құру, аудан мен контурлар бойынша есептеу, ұңғымалар арасындағы параметрлердің таралуын талдау.","Interpolation and gridding, calculations by area and contour, analysis of how parameters are distributed between wells."],
+"кригинг":["кригинг","kriging"],
+"гриды":["гридтер","grids"],
+"контуры":["контурлар","contours"],
+"Месторождения и структуры":["Кен орындары мен құрылымдар","Fields and structures"],
+"Свои месторождения, лицензионные участки, блоки и горизонты. Данные агрегируются на любом уровне иерархии.":["Өз кен орындарыңыз, лицензиялық учаскелер, блоктар мен горизонттар. Деректер иерархияның кез келген деңгейінде біріктіріледі.","Your own fields, licence areas, blocks and horizons. Data is aggregated at any level of the hierarchy."],
+"блоки":["блоктар","blocks"],
+"горизонты":["горизонттар","horizons"],
+"пласты":["қабаттар","reservoirs"],
+"участки":["учаскелер","licence areas"],
+"Движение запасов":["Қорлар қозғалысы","Reserves movement"],
+"Расчёт баланса по категориям и формирование отчёта по государственной форме. Каждое изменение запасов связано с основанием.":["Санаттар бойынша балансты есептеу және мемлекеттік нысан бойынша есеп қалыптастыру. Қорлардың әр өзгерісі негіздемемен байланысты.","Balance calculation by category and reporting in the official state form. Every change in reserves is linked to its justification."],
+"госформа":["мемлекеттік нысан","state form"],
+"аудит":["аудит","audit trail"],
+"Доступ и интеграции":["Қолжетімділік және интеграциялар","Access and integrations"],
+"Роли и права на уровне месторождения, журнал изменений, API для обмена с другим ПО. Развёртывание в облаке или на серверах заказчика.":["Кен орны деңгейіндегі рөлдер мен құқықтар, өзгерістер журналы, басқа БҚ-мен алмасуға арналған API. Бұлтта немесе тапсырыс берушінің серверлерінде орналастыру.","Roles and permissions at field level, change log, API for exchange with other software. Deployment in the cloud or on the client's own servers."],
+"роли":["рөлдер","roles"],
+"Загрузка":["Жүктеу","Import"],
+"Импорт архивов и текущих данных с проверкой форматов и привязок.":["Архивтер мен ағымдағы деректерді форматтар мен байланыстарды тексере отырып импорттау.","Archives and current data are imported with checks on formats and spatial references."],
+"Структурирование":["Құрылымдау","Structuring"],
+"Данные раскладываются по месторождениям, скважинам, пластам и блокам.":["Деректер кен орындары, ұңғымалар, қабаттар және блоктар бойынша бөлінеді.","Data is organised by field, well, reservoir and block."],
+"Анализ":["Талдау","Analysis"],
+"Карты, сетки и пространственные расчёты на актуальных данных.":["Өзекті деректер негізіндегі карталар, торлар және кеңістіктік есептеулер.","Maps, grids and spatial calculations on current data."],
+"Отчётность":["Есептілік","Reporting"],
+"Баланс запасов и выгрузки для госорганов и руководства.":["Мемлекеттік органдар мен басшылыққа арналған қорлар балансы және экспорт.","Reserves balance and exports for regulators and management."],
+"Учёт запасов":["Қорларды есепке алу","Reserves accounting"],
+"Движение запасов без ручных сводок":["Қолмен жинақтаусыз қорлар қозғалысы","Reserves movement without manual roll-ups"],
+"Kenara считает баланс запасов от начала года к концу года по каждому объекту подсчёта и собирает отчёт в формате государственной формы.":["Kenara әр есептеу объектісі бойынша жыл басынан жыл соңына дейінгі қорлар балансын есептейді және есепті мемлекеттік нысан форматында жинайды.","Kenara calculates the reserves balance from the start to the end of the year for each estimation unit and assembles the report in the state form format."],
+"Добыча, прирост, переоценка и списание по категориям":["Санаттар бойынша өндіру, өсім, қайта бағалау және есептен шығару","Production, additions, revisions and write-offs by category"],
+"Разрез по месторождению, блоку и горизонту":["Кен орны, блок және горизонт бойынша бөлу","Breakdown by field, block and horizon"],
+"История изменений с обоснованием каждой операции":["Әр операцияның негіздемесі бар өзгерістер тарихы","Change history with a justification for every operation"],
+"Выгрузка готового отчёта в Excel и PDF":["Дайын есепті Excel және PDF форматында жүктеу","Export of the finished report to Excel and PDF"],
+"Месторождение «Северное»":["«Солтүстік» кен орны","Severnoye field"],
+"· горизонт Ю-I":["· Ю-I горизонты","· horizon Yu-I"],
+"нефть, тыс. т · пример":["мұнай, мың т · мысал","oil, thousand t · example"],
+"Показатель":["Көрсеткіш","Item"],
+"Итого":["Барлығы","Total"],
+"На 01.01.2026":["01.01.2026 жағдайы","As of 01.01.2026"],
+"Добыча":["Өндіру","Production"],
+"Разведка (прирост)":["Барлау (өсім)","Exploration (additions)"],
+"Переоценка":["Қайта бағалау","Revision"],
+"Списание":["Есептен шығару","Write-off"],
+"На 01.01.2027":["01.01.2027 жағдайы","As of 01.01.2027"],
+"Цифры условные и показывают структуру отчёта.":["Сандар шартты және есептің құрылымын көрсетеді.","Figures are illustrative and show the structure of the report."],
+"Консалтинг и цифровизация":["Консалтинг және цифрландыру","Consulting and digital transformation"],
+"Помогаем навести порядок в данных до внедрения системы и сопровождаем команду после запуска.":["Жүйені енгізгенге дейін деректерді ретке келтіруге көмектесеміз және іске қосылғаннан кейін команданы сүйемелдейміз.","We help put your data in order before the system goes live and support your team after launch."],
+"Аудит данных и процессов":["Деректер мен процестер аудиті","Data and process audit"],
+"Описываем, какие данные есть, где они хранятся и как движутся между отделами. Находим пробелы и дубли.":["Қандай деректер бар екенін, олардың қайда сақталатынын және бөлімдер арасында қалай қозғалатынын сипаттаймыз. Олқылықтар мен қайталануларды табамыз.","We describe what data you have, where it is stored and how it moves between departments. We find gaps and duplicates."],
+"Стратегия цифровизации":["Цифрландыру стратегиясы","Digital strategy"],
+"Целевая архитектура данных и дорожная карта с приоритетами и сроками.":["Деректердің мақсатты архитектурасы және басымдықтары мен мерзімдері бар жол картасы.","Target data architecture and a roadmap with priorities and timelines."],
+"Миграция и оцифровка архивов":["Архивтерді көшіру және цифрландыру","Archive migration and digitisation"],
+"Перенос исторических данных, оцифровка бумажных каротажей и карт, контроль качества.":["Тарихи деректерді көшіру, қағаз каротаждар мен карталарды цифрландыру, сапаны бақылау.","Transfer of historical data, digitisation of paper logs and maps, quality control."],
+"Внедрение Kenara и обучение":["Kenara енгізу және оқыту","Kenara implementation and training"],
+"Настройка под структуру компании, интеграция с текущим ПО, обучение геологов и администраторов.":["Компания құрылымына баптау, қолданыстағы БҚ-мен интеграция, геологтар мен әкімшілерді оқыту.","Configuration to fit your company structure, integration with existing software, training for geologists and administrators."],
+"Сопровождение":["Сүйемелдеу","Ongoing support"],
+"Техническая поддержка, обновления и консультации по работе с данными.":["Техникалық қолдау, жаңартулар және деректермен жұмыс бойынша кеңестер.","Technical support, updates and advice on working with data."],
+"Методическая поддержка":["Әдістемелік қолдау","Methodology support"],
+"Помощь в подготовке материалов по подсчёту и учёту запасов.":["Қорларды есептеу және есепке алу бойынша материалдарды дайындауға көмек.","Help preparing materials for reserves estimation and accounting."],
+"Для кого Kenara":["Kenara кімге арналған","Who Kenara is for"],
+"Платформа настраивается под задачи организации: от одного лицензионного участка до портфеля месторождений.":["Платформа ұйымның міндеттеріне бейімделеді: бір лицензиялық учаскеден кен орындарының портфеліне дейін.","The platform adapts to your organisation, from a single licence area to a portfolio of fields."],
+"Недропользователи":["Жер қойнауын пайдаланушылар","Subsoil users"],
+"Единая база по всем активам":["Барлық активтер бойынша бірыңғай база","One database for all assets"],
+"Отчётность по запасам в срок":["Қорлар бойынша есептілік уақытында","Reserves reporting on time"],
+"Прозрачность для руководства":["Басшылық үшін ашықтық","Transparency for management"],
+"Проектные и научные институты":["Жобалау және ғылыми институттар","Design and research institutes"],
+"Работа с данными заказчиков":["Тапсырыс берушілердің деректерімен жұмыс","Working with client data"],
+"Подсчёт запасов и картопостроение":["Қорларды есептеу және карта құру","Reserves estimation and mapping"],
+"Совместные проекты":["Бірлескен жобалар","Joint projects"],
+"Государственные органы":["Мемлекеттік органдар","Government agencies"],
+"Сбор и проверка отчётности":["Есептілікті жинау және тексеру","Collecting and checking reports"],
+"Сводные данные по регионам":["Өңірлер бойынша жиынтық деректер","Consolidated data by region"],
+"Контроль движения запасов":["Қорлар қозғалысын бақылау","Monitoring reserves movement"],
+"Типовые проекты":["Типтік жобалар","Typical projects"],
+"Здесь будут опубликованы проекты с разрешения заказчиков. Ниже описаны типичные задачи, с которыми к нам приходят.":["Мұнда тапсырыс берушілердің рұқсатымен жобалар жарияланады. Төменде бізге жиі келетін типтік міндеттер сипатталған.","Projects will be published here with our clients' permission. Below are typical tasks clients bring to us."],
+"Недропользователь · архив":["Жер қойнауын пайдаланушы · архив","Subsoil user · archive"],
+"Единая база вместо файловых архивов":["Файлдық архивтердің орнына бірыңғай база","One database instead of file archives"],
+"Каротажи, опробования и карты по нескольким месторождениям переносятся в Kenara с проверкой привязок.":["Бірнеше кен орны бойынша каротаждар, сынамалар мен карталар байланыстарды тексере отырып Kenara-ға көшіріледі.","Logs, sampling and maps for several fields are moved into Kenara with spatial reference checks."],
+"Итог: одна версия данных для всех служб.":["Нәтиже: барлық қызметтер үшін деректердің бір нұсқасы.","Result: one version of the data for every department."],
+"Отчётность · запасы":["Есептілік · қорлар","Reporting · reserves"],
+"Автоматизация отчёта по запасам":["Қорлар есебін автоматтандыру","Automated reserves reporting"],
+"Баланс запасов по блокам и горизонтам считается в системе, а не сводится из таблиц.":["Блоктар мен горизонттар бойынша қорлар балансы кестелерден жиналмайды, жүйеде есептеледі.","The reserves balance by block and horizon is calculated in the system instead of being compiled from spreadsheets."],
+"Итог: отчёт формируется из системы и проверяется по журналу изменений.":["Нәтиже: есеп жүйеден қалыптасады және өзгерістер журналы бойынша тексеріледі.","Result: the report comes from the system and can be checked against the change log."],
+"Консалтинг · стратегия":["Консалтинг · стратегия","Consulting · strategy"],
+"Дорожная карта цифровизации":["Цифрландырудың жол картасы","Digital transformation roadmap"],
+"Аудит данных геологической службы и план перехода к единой платформе.":["Геологиялық қызмет деректерінің аудиті және бірыңғай платформаға көшу жоспары.","An audit of the geology department's data and a plan for moving to a single platform."],
+"Итог: согласованный план работ с приоритетами.":["Нәтиже: басымдықтары бар келісілген жұмыс жоспары.","Result: an agreed work plan with priorities."],
+"Мы разрабатываем программное обеспечение для геологических данных и помогаем компаниям недропользования переходить к цифровым процессам.":["Біз геологиялық деректерге арналған бағдарламалық қамтамасыз етуді әзірлейміз және жер қойнауын пайдаланушы компанияларға цифрлық процестерге көшуге көмектесеміз.","We build software for geological data and help subsoil use companies move to digital processes."],
+"В команде геологи, геофизики и разработчики, поэтому Kenara построена вокруг реальных рабочих процессов геологической службы.":["Командада геологтар, геофизиктер және әзірлеушілер бар, сондықтан Kenara геологиялық қызметтің нақты жұмыс процестері негізінде құрылған.","Our team includes geologists, geophysicists and developers, so Kenara is built around the real workflows of a geology department."],
+"Данные":["Деректер","Data"],
+"одна версия, понятное происхождение":["бір нұсқа, түсінікті шығу тегі","one version, clear origin"],
+"Методики":["Әдістемелер","Methods"],
+"соответствие требованиям к отчётности":["есептілік талаптарына сәйкестік","compliance with reporting requirements"],
+"Развёртывание":["Орналастыру","Deployment"],
+"облако или серверы заказчика":["бұлт немесе тапсырыс берушінің серверлері","cloud or client servers"],
+"Поддержка":["Қолдау","Support"],
+"на русском языке, в вашем часовом поясе":["орыс тілінде, сіздің уақыт белдеуіңізде","in Russian, in your time zone"],
+"Покажем Kenara на ваших данных":["Kenara-ны сіздің деректеріңізде көрсетеміз","See Kenara on your own data"],
+"Оставьте заявку, и мы договоримся о демонстрации платформы или консультации.":["Өтінім қалдырыңыз, біз платформаны көрсету немесе кеңес беру туралы келісеміз.","Leave a request and we will arrange a platform demo or a consultation."],
+"Город":["Қала","City"],
+"Астана":["Астана","Astana"],
+"Email":["Email","Email"],
+"Телефон":["Телефон","Phone"],
+"Имя":["Аты","Name"],
+"Компания":["Компания","Company"],
+"Интересует":["Қызықтырады","Interested in"],
+"Демонстрация Kenara":["Kenara демонстрациясы","Kenara demo"],
+"Учёт движения запасов":["Қорлар қозғалысын есепке алу","Reserves movement accounting"],
+"Миграция данных":["Деректерді көшіру","Data migration"],
+"Комментарий":["Пікір","Comment"],
+"Отправить заявку":["Өтінім жіберу","Send request"],
+"Политика конфиденциальности":["Құпиялылық саясаты","Privacy policy"],
+"GeoData Solutions — на главную":["GeoData Solutions — басты бетке","GeoData Solutions — home"],
+"Пример структурной карты в Kenara":["Kenara-дағы құрылымдық карта мысалы","Example structure map in Kenara"],
+"Например: 3 месторождения, около 800 скважин, нужна отчётность по запасам":["Мысалы: 3 кен орны, шамамен 800 ұңғыма, қорлар бойынша есептілік қажет","For example: 3 fields, about 800 wells, reserves reporting needed"],
+"Укажите имя и корректный email.":["Атыңызды және дұрыс email көрсетіңіз.","Please enter your name and a valid email."],
+"Заявка заполнена. Отправка заработает после подключения сайта к почте или CRM.":["Өтінім толтырылды. Жіберу сайт поштаға немесе CRM-ге қосылғаннан кейін жұмыс істейді.","Request filled in. Sending will work once the site is connected to email or a CRM."]
+};
+const LANGS=['ru','kk','en'];
+let LANG='ru';
+function T(ru){if(LANG==='ru')return ru;const r=I18N[ru];return r?r[LANGS.indexOf(LANG)-1]:ru}
+window.T=T;
+const norm=s=>s.replace(/\s+/g,' ').trim();
+const textNodes=[],attrNodes=[];
+(function collect(){
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>{
+    const p=n.parentElement; if(!p||p.closest('script,style,#ok'))return NodeFilter.FILTER_REJECT;
+    return I18N[norm(n.nodeValue)]?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}});
+  let n; while(n=w.nextNode()){const v=n.nodeValue;textNodes.push({n,ru:norm(v),pre:v.match(/^\s*/)[0],post:v.match(/\s*$/)[0]})}
+  document.querySelectorAll('[placeholder],[aria-label]').forEach(el=>['placeholder','aria-label'].forEach(a=>{
+    const v=el.getAttribute(a); if(v&&I18N[v])attrNodes.push({el,a,ru:v})}));
+})();
+const TITLES={ru:'GeoData Solutions',kk:'GeoData Solutions',en:'GeoData Solutions'};
+function setLang(l){
+  if(!LANGS.includes(l))l='ru'; LANG=l;
+  document.documentElement.lang=l;
+  textNodes.forEach(t=>t.n.nodeValue=t.pre+T(t.ru)+t.post);
+  attrNodes.forEach(t=>t.el.setAttribute(t.a,T(t.ru)));
+  const ok=document.getElementById('ok'); if(ok.dataset.msg)ok.textContent=T(ok.dataset.msg);
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));
+  document.title=TITLES[l];
+  try{localStorage.setItem('gds-lang',l)}catch(e){}
+}
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+(function init(){
+  const h=location.hash.slice(1).toLowerCase(), fromHash=h==='kz'?'kk':(LANGS.includes(h)?h:null);
+  let saved=null; try{saved=localStorage.getItem('gds-lang')}catch(e){}
+  const l=fromHash||saved||'ru'; if(l!=='ru')setLang(l);
 })();
 </script>
 </body>
